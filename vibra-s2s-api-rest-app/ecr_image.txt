@@ -1,0 +1,1 @@
+951632447595.dkr.ecr.ap-southeast-2.amazonaws.com/vibra-s2s-api/vibra-s2s-api-rest-app-native:3-15-1-20250425-20-07-LOCAL

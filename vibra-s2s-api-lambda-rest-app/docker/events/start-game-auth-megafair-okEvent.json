@@ -1,0 +1,12 @@
+{
+  "headers": {
+    "X-Forwarded-For": "23.123.45.33"
+  },
+  "multiValueHeaders": {
+    "X-Forwarded-For": [
+      "23.123.45.33"
+    ]
+  },
+  "path": "/cwstartgamev2.do?gameId=game1&bankId=megafair&mode=real&token=user_123456",
+  "httpMethod": "GET"
+}

@@ -1,0 +1,13 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "api-vibra-sam-prod"
+resolve_s3 = true
+s3_prefix = "api-vibra-sam-prod"
+region = "ap-southeast-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "StageParam=\"prod\" HostedZoneIdParam=\"Z00122341WXMX555JV3P2\" DomainNameParam=\"prod.pub-api.viv.sdn.mfgapi.com\" DockerImageTagParam=\"3.2.5.Final-20240706-18-40_911a6ae-66\""
+image_repositories = []
+

@@ -1,0 +1,50 @@
+nameOverride: "vibra-s2s-api"
+fullnameOverride: "vibra-s2s-api-chart"
+
+mf_domain_root: "mf-load-3.apistg.com"
+mf_environment_name: "mf-load-3"
+mf_service_name: "vibra-s2s-api"
+mf_otel_collector_host: "opentelemetry-collector.kube-system.svc.cluster.local"
+mf_config_env: "prod"
+mf_datadog_url: "http://datadog-proxy.load-3.svc.cluster.local:8080"
+mf_analytics_settings_real: "DevToDev_Bingo=ad401697-e27c-09c9-9153-b05ecba9ced0,GameAnalytics_Bingo=20cce88756ef5133c6f3dad3cb9f36a1:df1b23470bdf072add3c843ac45bc6a8caf79b51,DevToDev_Solitaire=ddfa91f2-0b06-01d2-8a0a-24502dbe1cca,GameAnalytics_Solitaire=373c7b19c4b52cee536ae7b064444582:b1ea9d049165091cd53b2e28bcc8e30d13adbea6,DevToDev_Slots_black=17359448-7244-0f11-bf6e-8b7a33cc4cac,DevToDev_GoldFish=778d9434-1f49-043d-b90e-be83d086af92"
+mf_analytics_settings_demo: "DevToDev_Bingo=89680758-5b60-07b5-b503-f60c77e3d056,GameAnalytics_Bingo=e02ff2fecac5fc76a485fc79962a4b0b:a23754177338f47f9c0f3dcad4fa62d3986d7cec,DevToDev_Solitaire=ef2ed333-906c-07d8-b7db-65596cda8c8e,GameAnalytics_Solitaire=3dc648a18258aaeff73ab6ab90287d72:7222a1f9436e416029455e31b38d1d4f08ca6323"
+
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  hosts:
+    - host: vibra-s2s-api.mf-load-3.apistg.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+    - host: mf-load-3.apistg.com
+      paths:
+        - path: /vibra-s2s-api/(.*)
+          pathType: ImplementationSpecific
+
+replicaCount: 3
+
+memoryRequest: "200Mi"
+cpuRequest: "400m"
+memoryLimit: "1000Mi"
+cpuLimit: "1200m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 95
+  #targetMemoryUtilizationPercentage: 90
+
+podDisruptionBudget:
+  #maxUnavailable: 1
+  minAvailable: 2

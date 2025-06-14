@@ -1,0 +1,162 @@
+  AWSTemplateFormatVersion: '2010-09-09'
+  Transform: AWS::Serverless-2016-10-31
+  Description: AWS Serverless Quarkus HTTP - api.bsg-1.0-SNAPSHOT
+
+  Parameters:
+    StageParam:
+      Type: String
+      AllowedValues:
+      - "dev"
+      - "stg"
+      - "prod"
+      
+    HostedZoneIdParam:
+      Type: AWS::Route53::HostedZone::Id
+      Description: The ID of the hosted zone to which the resource record should be added
+    DomainNameParam:
+      Type: String
+      Description: The Domain name for the API
+    DockerImageTagParam:
+      Type: String
+      Description: The Docker image tag for the in the ImageUri  
+
+  Globals:
+    Api:
+      EndpointConfiguration: EDGE
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigateway-restapi-endpointconfiguration.html
+      # EDGE: For an edge-optimized API and its custom domain name.
+      # REGIONAL: For a regional API and its custom domain name.
+      # PRIVATE: For a private API.
+      BinaryMediaTypes:
+        - "*/*"
+
+  Resources:
+    GenerateCertificate: # Creates a valid certificate for the HTTP API endpoint under the custom domain 
+        Type: AWS::CertificateManager::Certificate
+        Properties: 
+          DomainName: !Ref DomainNameParam
+          ValidationMethod: DNS
+          DomainValidationOptions:
+          - DomainName: !Ref DomainNameParam
+            HostedZoneId: !Ref HostedZoneIdParam
+
+    RestApiGateway: # Creates a HTTP API endpoint under the custom domain
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        TracingEnabled: true
+
+        Domain:
+          DomainName: !Ref DomainNameParam
+          CertificateArn: !Ref GenerateCertificate
+          Route53:
+            HostedZoneId: !Ref HostedZoneIdParam
+
+    ApiBsgNative:
+      Type: AWS::Serverless::Function
+      Properties:
+        # Handler: not.used.in.provided.runtimei
+        # Runtime: provided
+        PackageType: Image
+        ImageUri: 
+          Fn::Sub: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/vibra-s2s-api/vibra-s2s-api-lambda-rest-app-native:${DockerImageTagParam}
+        # CodeUri: ../target/function.zip
+        MemorySize: 1024
+        Policies: AWSLambdaBasicExecutionRole
+        Timeout: 15
+        Architectures:
+         - arm64
+          # - x86_64
+        Environment:
+          Variables:
+            DISABLE_SIGNAL_HANDLERS: true
+            QUARKUS_REST_CLIENT_READ_TIMEOUT: 2000
+            MF_GAME_URL_LAYOUT: LEGACY
+            MF_MASTER_PASSWORD_PASS1:
+              !Join
+              - ':'
+              - - '{{resolve:secretsmanager'
+                - !Sub '${StageParam}/MF_MASTER_PASSWORD_PASS1'
+                - 'SecretString:password}}'
+            MF_TENANT_SECRET_ALN: ""
+            MF_SESSION_REDIS_HOSTS: "master.elr1bwjgvpem75zf.v82vnz.apse2.cache.amazonaws.com:6379"
+            MF_SESSION_REDIS_PASSWORD:
+              !Join
+                - ":"
+                - - '{{resolve:secretsmanager'
+                  - 'Fn::ImportValue': !Sub 'elasticache-redis-${StageParam}-RedisRBACSecretRW'
+                  - 'SecretString:password}}'
+            MF_SESSION_REDIS_PROTOCOL: "rediss://"
+            MF_SESSION_REDIS_USERNAME: readwrite
+            QUARKUS_REDIS_REDIS_SESSION_TLS_ENABLED: true
+            QUARKUS_REDIS_REDIS_SESSION_CLIENT_TYPE: standalone
+            QUARKUS_DATASOURCE_USERNAME:
+              !Join
+                - ":"
+                - - '{{resolve:secretsmanager'
+                  - 'Fn::ImportValue': !Sub 'postgres-rds-${StageParam}-AuroraMasterSecret'
+                  - 'SecretString:username}}'
+            QUARKUS_DATASOURCE_PASSWORD:
+              !Join
+                - ':'
+                - - '{{resolve:secretsmanager'
+                  - 'Fn::ImportValue': !Sub 'postgres-rds-${StageParam}-AuroraMasterSecret' 
+                  - 'SecretString:password}}'
+            QUARKUS_DATASOURCE_JDBC_URL:
+              !Join
+              - ''
+              - - 'jdbc:postgresql://'
+                - !Join
+                  - ':'
+                  - - '{{resolve:secretsmanager'
+                    - 'Fn::ImportValue': !Sub 'postgres-rds-${StageParam}-AuroraMasterSecret'
+                    - 'SecretString:host}}'
+                - ':'
+                - !Join
+                  - ':'
+                  - - '{{resolve:secretsmanager'
+                    - 'Fn::ImportValue': !Sub 'postgres-rds-${StageParam}-AuroraMasterSecret'
+                    - 'SecretString:port}}'
+                - '/'
+                - !Join
+                  - ':'
+                  - - '{{resolve:secretsmanager'
+                    - 'Fn::ImportValue': !Sub 'postgres-rds-${StageParam}-AuroraMasterSecret' 
+                    -  'SecretString:dbname}}'
+                - '?sslmode=require'
+
+        VpcConfig:
+          SecurityGroupIds:
+            - {'Fn::ImportValue': !Sub 'vpc-${StageParam}-security-group'}
+          SubnetIds: !Split [ ',', {'Fn::ImportValue': !Sub 'vpc-${StageParam}-private-subnet-ids'}]
+        Events:
+          ApiEvent:
+            Type: Api
+            Properties:
+              RestApiId: !Ref RestApiGateway
+              Path: /{proxy+}
+              Method: any
+  Outputs:
+    BsgBrandMockNativeApi:
+      Description: URL for application
+      # Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/'
+      Value: !Sub 'https://${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com/'
+      Export:
+        Name: 
+          Fn::Sub: ${AWS::StackName}-BsgBrandMockNativeApi
+    
+    DomainName:
+      Description: The Domain name
+      Value:
+        Ref: DomainNameParam
+      Export:
+        Name:
+          Fn::Sub: ${AWS::StackName}-DomainName
+
+    RestApiGateway:
+      Description: The Domain name
+      Value:
+        Ref: RestApiGateway
+      Export:
+        Name:
+          Fn::Sub: ${AWS::StackName}-RestApiGateway

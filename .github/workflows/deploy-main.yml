@@ -1,0 +1,93 @@
+name: deploy main
+run-name: >
+  ${{ github.event_name == 'pull_request' && format('PR: {0}', github.event.pull_request.title) 
+  || github.event_name == 'push' && format('Commit: {0}', github.event.head_commit.message) 
+  || format('Deploy to {0}', github.event.inputs.envToDeploy) }}
+on:
+  workflow_dispatch:
+    inputs:
+      envToDeploy:
+        description: 'Environment to deploy'
+        required: false
+        type: choice
+        default: "dev"
+        options:
+          - dev
+          - main
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  start-runner:
+    uses: MegaFair/mf-ci-center/.github/workflows/start-runner.yml@v1.135.0
+    with:
+      github_repository_name: "${{ github.repository }}"
+    secrets:
+      github_pat: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
+
+  build:
+    needs: start-runner
+    uses: MegaFair/mf-ci-center/.github/workflows/build-backend.yml@v1.135.0
+    with:
+      runner_label: "${{ needs.start-runner.outputs.runner_label }}"
+      env_type: "main"
+      app_name: "vibra-s2s-api"
+      app_version_type: "master"
+      git_commit_hash: "${{ github.sha }}"
+      git_ref: "${{ github.ref }}"
+      github_run_number: "${{ github.run_number }}"
+    secrets:
+      aws_source_account: "${{ secrets.AWS_SOURCE_ACCOUNT }}"
+      dockerhub_username: "${{ secrets.DOCKERHUB_USERNAME }}"
+      dockerhub_password: "${{ secrets.DOCKERHUB_PASS }}"
+      github_pat: "${{ secrets.MF_GIT_TOKEN }}"
+
+  stop-runner:
+    if: ${{ always() }}
+    needs:
+      - start-runner
+      - build
+    uses: MegaFair/mf-ci-center/.github/workflows/stop-runner.yml@v1.135.0
+    with:
+      ec2_instance_id: "${{ needs.start-runner.outputs.ec2_instance_id }}"
+      runner_label: "${{ needs.start-runner.outputs.runner_label }}"
+    secrets:
+      github_pat: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
+
+  deploy:
+    needs:
+      - build
+    uses: MegaFair/mf-ci-center/.github/workflows/deploy-backend.yml@v1.135.0
+    with:
+      runner_label: "mf-dev-github-runner"
+      app_name: "vibra-s2s-api"
+      env_to_deploy: "${{ github.event.inputs.envToDeploy || 'main' }}"
+      docker_tag: "${{ needs.build.outputs.docker_tag }}"
+    secrets:
+      aws_source_account: "${{ secrets.AWS_SOURCE_ACCOUNT }}"
+      jira_github_token: "${{ secrets.MF_GIT_TOKEN }}"
+      github_pat: "${{ secrets.MF_GIT_TOKEN }}"
+
+  notify:
+    if: always()
+    needs:
+      - build
+      - deploy
+    uses: MegaFair/mf-ci-center/.github/workflows/notify-slack.yml@v1.135.0
+    with:
+      build_status: ${{ needs.build.result }}
+      deploy_status: ${{ needs.deploy.result }}
+      environment: "${{ github.event.inputs.envToDeploy != '' && github.event.inputs.envToDeploy || 'main' }}"
+      docker_tag: "${{ needs.build.outputs.docker_tag }}"
+      send_slack_notification: "true"
+    secrets:
+      slack_webhook_url: "${{ secrets.MF_MAIN_DEPLOY }}"

@@ -1,0 +1,39 @@
+name: Get logs
+on:
+  workflow_dispatch:
+    inputs:
+      envToDeploy:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - d00
+          - d01
+          - d02
+          - d03
+          - d04
+          - d05
+          - dev
+          - dev-int
+          - main
+          - prod-int
+          - prod
+          - load-1
+          - load-2
+          - load-3
+          - load-4
+          - load-5
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  debug:
+    uses: MegaFair/mf-ci-center/.github/workflows/backend-debug.yml@v1.135.0
+    with:
+      runner_label: "mf-dev-github-runner"
+      app_name: "vibra-s2s-api"
+      env_to_deploy: "${{ github.event.inputs.envToDeploy }}"
+    secrets:
+      aws_source_account: "${{ secrets.AWS_SOURCE_ACCOUNT }}"

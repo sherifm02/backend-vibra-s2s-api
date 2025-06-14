@@ -1,0 +1,14 @@
+geolocation:
+  enabled: true
+  blackList:
+    countriesWithStateOrCities:
+      US:
+        states:
+          - Arizona
+          - Louisiana
+          - South Carolina
+          - Iowa
+          - Arkansas
+          - Connecticut
+          - Delaware
+          - South Dakota

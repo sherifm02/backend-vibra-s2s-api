@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vibra-s2s-api.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "vibra-s2s-api.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "vibra-s2s-api.selectorLabels" . | nindent 4 }}

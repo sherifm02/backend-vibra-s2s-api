@@ -1,0 +1,82 @@
+name: deploy prod-int
+run-name: >
+  ${{ github.event_name == 'pull_request' && format('PR: {0}', github.event.pull_request.title) 
+  || github.event_name == 'push' && format('Commit: {0}', github.event.head_commit.message) 
+  || format('Deploy to {0}', github.event.inputs.envToDeploy) }}
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Name of the tag. Use semantic versioning (e.g. 0.0.1)
+        required: true
+        type: string
+      envToDeploy:
+        description: 'Environment to deploy'
+        required: false
+        type: choice
+        default: "prod-int"
+        options:
+          - prod-int
+          - dev
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  validate-access:
+    uses: MegaFair/mf-ci-center/.github/workflows/validate-access.yml@v1.135.0
+    with:
+      env_to_deploy: "${{ github.event.inputs.envToDeploy }}"
+      team_name: "DeployManagerBE"
+    secrets:
+      validate_github_pat: "${{ secrets.VALIDATE_GITHUB_PAT }}"
+
+  check-tag:
+    needs: validate-access
+    uses: MegaFair/mf-ci-center/.github/workflows/check-tag.yml@v1.135.0
+    with:
+      tag_name: "${{ inputs.tag_name }}"
+      check_semantic: "true"
+      check_can_create: "true"
+
+  retag-prod-int:
+    needs: check-tag
+    uses: MegaFair/mf-ci-center/.github/workflows/retag-prod-int.yml@v1.135.0
+    with:
+      tag_name: "${{ needs.check-tag.outputs.trimmed_tag_name }}"
+      app_name: "vibra-s2s-api"
+      aws_region: "us-east-1"
+      runner_label: "mf-dev-github-runner"
+    secrets:
+      aws_source_account: ${{ secrets.AWS_SOURCE_ACCOUNT }}
+
+  deploy:
+    needs:
+      - retag-prod-int
+      - check-tag  
+    uses: MegaFair/mf-ci-center/.github/workflows/deploy-backend.yml@v1.135.0
+    with:
+      runner_label: "mf-dev-github-runner"
+      app_name: "vibra-s2s-api"
+      env_to_deploy: "${{ github.event.inputs.envToDeploy }}"
+      docker_tag: "${{ needs.check-tag.outputs.trimmed_tag_name }}"
+    secrets:
+      aws_source_account: "${{ secrets.AWS_SOURCE_ACCOUNT }}"
+      jira_github_token: "${{ secrets.MF_GIT_TOKEN }}"
+      github_pat: "${{ secrets.MF_GIT_TOKEN }}"
+
+  notify:
+    if: always()
+    needs:
+      - check-tag
+      - deploy
+    uses: MegaFair/mf-ci-center/.github/workflows/notify-slack.yml@v1.135.0
+    with:
+      build_status: "skipped"
+      deploy_status: ${{ needs.deploy.result }}
+      environment: "${{ github.event.inputs.envToDeploy != '' && github.event.inputs.envToDeploy || 'prod-int' }}"
+      docker_tag: "${{ needs.check-tag.outputs.trimmed_tag_name }}"
+      send_slack_notification: "true"
+    secrets:
+      slack_webhook_url: "${{ secrets.MF_PROD_INT_DEPLOY }}"

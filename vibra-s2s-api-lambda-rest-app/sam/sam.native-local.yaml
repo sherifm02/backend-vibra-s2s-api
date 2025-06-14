@@ -1,0 +1,91 @@
+  AWSTemplateFormatVersion: '2010-09-09'
+  Transform: AWS::Serverless-2016-10-31
+  Description: AWS Serverless Quarkus HTTP - api.bsg-1.0-SNAPSHOT
+
+  Parameters:
+    Stage:
+      Type: String
+      
+    HostedZoneIdParam:
+      Type: AWS::Route53::HostedZone::Id
+      Description: The ID of the hosted zone to which the resource record should be added
+    DomainNameParam:
+      Type: String
+      Description: The Domain name for the API
+
+  Globals:
+    Api:
+      EndpointConfiguration: REGIONAL
+      BinaryMediaTypes:
+        - "*/*"
+
+  Resources:
+    GenerateCertificate: # Creates a valid certificate for the HTTP API endpoint under the custom domain 
+        Type: AWS::CertificateManager::Certificate
+        Properties: 
+          DomainName: !Ref DomainNameParam
+          ValidationMethod: DNS
+          DomainValidationOptions:
+          - DomainName: !Ref DomainNameParam
+            HostedZoneId: !Ref HostedZoneIdParam
+
+    RestApiGateway: # Creates a HTTP API endpoint under the custom domain
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        TracingEnabled: true
+
+        Domain:
+          DomainName: !Ref DomainNameParam
+          CertificateArn: !Ref GenerateCertificate
+          Route53:
+            HostedZoneId: !Ref HostedZoneIdParam
+
+    ApiBsgNative:
+      Type: AWS::Serverless::Function
+      Properties:
+        Handler: not.used.in.provided.runtimei
+        Runtime: provided
+        CodeUri: ../target/function.zip
+        MemorySize: 128
+        Policies: AWSLambdaBasicExecutionRole
+        Timeout: 15
+        Environment:
+          Variables:
+            DISABLE_SIGNAL_HANDLERS: true
+            QUARKUS_REST_CLIENT_READ_TIMEOUT: 5000
+        VpcConfig:
+          SecurityGroupIds:
+            - {'Fn::ImportValue': !Sub 'vpc-${Stage}-security-group'}
+          Subnets: !Split [ ',', {'Fn::ImportValue': !Sub 'vpc-${Stage}-private-subnet-ids'}]
+        Events:
+          ApiEvent:
+            Type: Api
+            Properties:
+              RestApiId: !Ref RestApiGateway
+              Path: /{proxy+}
+              Method: any
+  Outputs:
+    BsgBrandMockNativeApi:
+      Description: URL for application
+      # Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/'
+      Value: !Sub 'https://${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com/'
+      Export:
+        Name: 
+          Fn::Sub: ${AWS::StackName}-BsgBrandMockNativeApi
+    
+    DomainName:
+      Description: The Domain name
+      Value:
+        Ref: DomainNameParam
+      Export:
+        Name:
+          Fn::Sub: ${AWS::StackName}-DomainName
+
+    RestApiGateway:
+      Description: The Domain name
+      Value:
+        Ref: RestApiGateway
+      Export:
+        Name:
+          Fn::Sub: ${AWS::StackName}-RestApiGateway

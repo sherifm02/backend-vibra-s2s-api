@@ -1,0 +1,39 @@
+  AWSTemplateFormatVersion: '2010-09-09'
+  Transform: AWS::Serverless-2016-10-31
+  Description: AWS Serverless Quarkus HTTP - api.bsg-1.0-SNAPSHOT
+  Globals:
+    Api:
+      EndpointConfiguration: REGIONAL
+      BinaryMediaTypes:
+        - "*/*"
+
+  Resources:
+    RestApiGateway: # Creates a HTTP API endpoint
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        TracingEnabled: true
+
+    ApiBsg:
+      Type: AWS::Serverless::Function
+      Properties:
+        Handler: io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest
+        Runtime: java11
+        CodeUri: ../target/function.zip
+        MemorySize: 512
+        Policies: AWSLambdaBasicExecutionRole
+        Timeout: 15
+        Events:
+          GetResource:
+            Type: Api
+            Properties:
+              RestApiId: !Ref RestApiGateway
+              Path: /{proxy+}
+              Method: any
+
+  Outputs:
+    ApiBsgApi:
+      Description: URL for application
+      Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+      Export:
+        Name: ApiBsgApi

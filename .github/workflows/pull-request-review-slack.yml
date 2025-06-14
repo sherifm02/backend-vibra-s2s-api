@@ -1,0 +1,41 @@
+name: Notify Slack on PR Review and Comment
+
+on:
+  pull_request_review:
+    types: [submitted]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+jobs:
+  extract-pr-number:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.extract.outputs.pr_number }}
+    steps:
+      - name: Extract PR Number from Issue Comment
+        if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
+        continue-on-error: true
+        run: echo "pr_number=$(jq -r '.issue.number' <<< '${{ toJSON(github.event) }}')" >> $GITHUB_OUTPUT
+
+      - name: Extract PR Number from Review
+        if: github.event_name == 'pull_request_review'
+        continue-on-error: true
+        run: echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+        id: extract
+
+  call-slack-notify:
+    needs: extract-pr-number
+    uses: MegaFair/mf-ci-center/.github/workflows/notify-slack-on-pr-review.yml@v1.135.0
+    with:
+      pr_number: "${{ needs.extract-pr-number.outputs.pr_number }}"
+      repository: "${{ github.repository }}"
+    secrets:
+      slack_webhook_url: "${{ secrets.MF_PR_NOTIFICATION }}"
+      github_personal_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"

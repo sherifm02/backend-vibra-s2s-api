@@ -1,0 +1,1 @@
+docker build -f docker/jvm.Dockerfile -t bsg-api-jvm:0.0.1 .

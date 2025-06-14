@@ -1,0 +1,30 @@
+environments:
+  main:
+  dev:
+  uat:
+  prod:
+  prod-int:
+  dev-int:
+  d00:
+  d01:
+  d02:
+  d03:
+  d04:
+  d05:
+  load-1:
+  load-2:
+  load-3:
+  load-4:
+  load-5:
+
+releases:
+  - chart: ./helm-chart/
+    name: vibra-s2s-api
+    namespace: {{ .Environment.Name }}
+    wait: true
+    waitForJobs: true
+    values:
+      - helm-chart/namespace/{{ .Environment.Name }}/values.yaml
+      - image:
+          repository: {{ requiredEnv "DOCKER_IMAGE_NAME" }}
+          tag: {{ requiredEnv "DOCKER_IMAGE_TAG" }}

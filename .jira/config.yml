@@ -1,0 +1,15 @@
+deployments:
+  environmentMapping:
+    development:
+      - "main"
+      - "d00"
+      - "d01"
+      - "d02"
+      - "d03"
+      - "d04"
+      - "d05"
+    staging:
+      - "prod-int"
+      - "uat"
+    production:
+      - "prod"

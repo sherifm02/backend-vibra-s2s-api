@@ -1,0 +1,9 @@
+1. Exception mapping - filter?
+2. Error responses - per API spec
+3. Extract an API spec into a separate module
+    3.1. Every Request as an Interface with @Path annotation
+    3.2. Response as DTO
+    3.3. Error responses
+    3.4. Error codes
+    3.5. Platform API mock impl (same as above)
+4. Hibernate Validator..

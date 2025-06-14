@@ -1,0 +1,137 @@
+        Deploying with following values
+        ===============================
+        Stack name                   : api-bsg-sam-prod
+        Region                       : ap-southeast-2
+        Confirm changeset            : False
+        Disable rollback             : False
+        Deployment s3 bucket         : aws-sam-cli-managed-default-samclisourcebucket-3110ecikutei
+        Capabilities                 : ["CAPABILITY_IAM"]
+        Parameter overrides          : {"StageParam": "prod", "HostedZoneIdParam": "Z00122341WXMX555JV3P2", "DomainNameParam": "prod.pub-api.bs.sdn.mfgapi.com"}
+        Signing Profiles             : {}
+
+Initiating deployment
+=====================
+2022-11-05 16:45:32,086 | Collected default values for parameters: {}
+2022-11-05 16:45:32,116 | Sam customer defined id is more priority than other IDs. Customer defined id for resource GenerateCertificate is GenerateCertificate
+2022-11-05 16:45:32,116 | Sam customer defined id is more priority than other IDs. Customer defined id for resource RestApiGateway is RestApiGateway
+2022-11-05 16:45:32,116 | Sam customer defined id is more priority than other IDs. Customer defined id for resource ApiBsgNative is ApiBsgNative
+2022-11-05 16:45:32,118 | Unable to resolve property SecurityGroupIds: [OrderedDict([('Fn::ImportValue', OrderedDict([('Fn::Sub', 'vpc-${StageParam}-security-group')]))])]. Leaving as is.
+2022-11-05 16:45:32,118 | Unable to resolve property SubnetIds: OrderedDict([('Fn::Split', [',', OrderedDict([('Fn::ImportValue', OrderedDict([('Fn::Sub', 'vpc-${StageParam}-private-subnet-ids')]))])])]). Leaving as is.
+2022-11-05 16:45:32,119 | 0 stacks found in the template
+2022-11-05 16:45:32,119 | Collected default values for parameters: {}
+2022-11-05 16:45:32,151 | Sam customer defined id is more priority than other IDs. Customer defined id for resource GenerateCertificate is GenerateCertificate
+2022-11-05 16:45:32,151 | Sam customer defined id is more priority than other IDs. Customer defined id for resource RestApiGateway is RestApiGateway
+2022-11-05 16:45:32,151 | Sam customer defined id is more priority than other IDs. Customer defined id for resource ApiBsgNative is ApiBsgNative
+2022-11-05 16:45:32,153 | Unable to resolve property SecurityGroupIds: [OrderedDict([('Fn::ImportValue', OrderedDict([('Fn::Sub', 'vpc-${StageParam}-security-group')]))])]. Leaving as is.
+2022-11-05 16:45:32,153 | Unable to resolve property SubnetIds: OrderedDict([('Fn::Split', [',', OrderedDict([('Fn::ImportValue', OrderedDict([('Fn::Sub', 'vpc-${StageParam}-private-subnet-ids')]))])])]). Leaving as is.
+2022-11-05 16:45:32,154 | 3 resources found in the stack 
+2022-11-05 16:45:33,920 | Stack with id api-bsg-sam-prod does not exist
+Uploading to api-bsg-sam-prod/fea398783f433289734ce20f36ec2d57.template  2859 / 2859  (100.00%)
+
+Waiting for changeset to be created..
+CloudFormation stack changeset
+-----------------------------------------------------------------------------------------------------
+Operation                 LogicalResourceId         ResourceType              Replacement             
+-----------------------------------------------------------------------------------------------------
++ Add                     ApiBsgNativeApiEventPer   AWS::Lambda::Permission   N/A                     
+                          missionProd                                                                 
++ Add                     ApiBsgNativeRole          AWS::IAM::Role            N/A                     
++ Add                     ApiBsgNative              AWS::Lambda::Function     N/A                     
++ Add                     ApiGatewayDomainNameb2b   AWS::ApiGateway::Domain   N/A                     
+                          222e3ad                   Name                                              
++ Add                     GenerateCertificate       AWS::CertificateManager   N/A                     
+                                                    ::Certificate                                     
++ Add                     RecordSetGroup747fb4b6e   AWS::Route53::RecordSet   N/A                     
+                          e                         Group                                             
++ Add                     RestApiGatewayBasePathM   AWS::ApiGateway::BasePa   N/A                     
+                          apping                    thMapping                                         
++ Add                     RestApiGatewayDeploymen   AWS::ApiGateway::Deploy   N/A                     
+                          t7f0fefd0ad               ment                                              
++ Add                     RestApiGatewayProdStage   AWS::ApiGateway::Stage    N/A                     
++ Add                     RestApiGateway            AWS::ApiGateway::RestAp   N/A                     
+                                                    i                                                 
+-----------------------------------------------------------------------------------------------------
+
+Changeset created successfully. arn:aws:cloudformation:ap-southeast-2:951632447595:changeSet/samcli-deploy1667659533/26871e5a-05a1-4202-8ab3-ceab7f998805
+
+
+2022-11-05 16:45:45 - Waiting for stack create/update to complete
+
+CloudFormation events from stack operations (refresh every 0.5 seconds)
+-----------------------------------------------------------------------------------------------------
+ResourceStatus            ResourceType              LogicalResourceId         ResourceStatusReason    
+-----------------------------------------------------------------------------------------------------
+CREATE_IN_PROGRESS        AWS::IAM::Role            ApiBsgNativeRole          -                       
+CREATE_IN_PROGRESS        AWS::CertificateManager   GenerateCertificate       -                       
+                          ::Certificate                                                               
+CREATE_IN_PROGRESS        AWS::CertificateManager   GenerateCertificate       Resource creation       
+                          ::Certificate                                       Initiated               
+CREATE_IN_PROGRESS        AWS::IAM::Role            ApiBsgNativeRole          Resource creation       
+                                                                              Initiated               
+CREATE_IN_PROGRESS        AWS::CertificateManager   GenerateCertificate       Content of DNS Record   
+                          ::Certificate                                       is: null                
+CREATE_COMPLETE           AWS::IAM::Role            ApiBsgNativeRole          -                       
+CREATE_COMPLETE           AWS::CertificateManager   GenerateCertificate       -                       
+                          ::Certificate                                                               
+CREATE_IN_PROGRESS        AWS::ApiGateway::Domain   ApiGatewayDomainNameb2b   -                       
+                          Name                      222e3ad                                           
+CREATE_IN_PROGRESS        AWS::Lambda::Function     ApiBsgNative              -                       
+CREATE_IN_PROGRESS        AWS::Lambda::Function     ApiBsgNative              Resource creation       
+                                                                              Initiated               
+CREATE_IN_PROGRESS        AWS::ApiGateway::Domain   ApiGatewayDomainNameb2b   Resource creation       
+                          Name                      222e3ad                   Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::Domain   ApiGatewayDomainNameb2b   -                       
+                          Name                      222e3ad                                           
+CREATE_IN_PROGRESS        AWS::Route53::RecordSet   RecordSetGroup747fb4b6e   -                       
+                          Group                     e                                                 
+CREATE_IN_PROGRESS        AWS::Route53::RecordSet   RecordSetGroup747fb4b6e   Resource creation       
+                          Group                     e                         Initiated               
+CREATE_COMPLETE           AWS::Route53::RecordSet   RecordSetGroup747fb4b6e   -                       
+                          Group                     e                                                 
+CREATE_COMPLETE           AWS::Lambda::Function     ApiBsgNative              -                       
+CREATE_IN_PROGRESS        AWS::ApiGateway::RestAp   RestApiGateway            -                       
+                          i                                                                           
+CREATE_IN_PROGRESS        AWS::ApiGateway::RestAp   RestApiGateway            Resource creation       
+                          i                                                   Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::RestAp   RestApiGateway            -                       
+                          i                                                                           
+CREATE_IN_PROGRESS        AWS::ApiGateway::Deploy   RestApiGatewayDeploymen   -                       
+                          ment                      t7f0fefd0ad                                       
+CREATE_IN_PROGRESS        AWS::Lambda::Permission   ApiBsgNativeApiEventPer   -                       
+                                                    missionProd                                       
+CREATE_IN_PROGRESS        AWS::Lambda::Permission   ApiBsgNativeApiEventPer   Resource creation       
+                                                    missionProd               Initiated               
+CREATE_IN_PROGRESS        AWS::ApiGateway::Deploy   RestApiGatewayDeploymen   Resource creation       
+                          ment                      t7f0fefd0ad               Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::Deploy   RestApiGatewayDeploymen   -                       
+                          ment                      t7f0fefd0ad                                       
+CREATE_IN_PROGRESS        AWS::ApiGateway::Stage    RestApiGatewayProdStage   -                       
+CREATE_IN_PROGRESS        AWS::ApiGateway::Stage    RestApiGatewayProdStage   Resource creation       
+                                                                              Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::Stage    RestApiGatewayProdStage   -                       
+CREATE_IN_PROGRESS        AWS::ApiGateway::BasePa   RestApiGatewayBasePathM   -                       
+                          thMapping                 apping                                            
+CREATE_IN_PROGRESS        AWS::ApiGateway::BasePa   RestApiGatewayBasePathM   Resource creation       
+                          thMapping                 apping                    Initiated               
+CREATE_COMPLETE           AWS::Lambda::Permission   ApiBsgNativeApiEventPer   -                       
+                                                    missionProd                                       
+CREATE_COMPLETE           AWS::ApiGateway::BasePa   RestApiGatewayBasePathM   -                       
+                          thMapping                 apping                                            
+CREATE_COMPLETE           AWS::CloudFormation::St   api-bsg-sam-prod          -                       
+                          ack                                                                         
+-----------------------------------------------------------------------------------------------------
+CloudFormation outputs from deployed stack
+--------------------------------------------------------------------------------------------------------
+Outputs                                                                                                
+--------------------------------------------------------------------------------------------------------
+Key                 RestApiGateway                                                                     
+Description         The Domain name                                                                    
+Value               hucan8well                                                                         
+
+Key                 BsgBrandMockNativeApi                                                              
+Description         URL for application                                                                
+Value               https://hucan8well.execute-api.ap-southeast-2.amazonaws.com/                       
+
+Key                 DomainName                                                                         
+Description         The Domain name                                                                    
+Value               prod.pub-api.bs.sdn.mfgapi.com                                                     

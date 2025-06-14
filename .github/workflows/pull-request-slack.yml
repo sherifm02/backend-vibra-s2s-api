@@ -1,0 +1,24 @@
+name: Notify Slack on Pull Request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - review_requested
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  call-notify-slack:
+    name: Call Notify Slack Workflow
+    uses: MegaFair/mf-ci-center/.github/workflows/pull-request-notify-slack.yml@v1.135.0
+    with:
+      pr_number: "${{ github.event.pull_request.number }}"
+      repository: "${{ github.repository }}"
+    secrets:
+      slack_webhook_url: "${{ secrets.MF_PR_NOTIFICATION }}"
+      github_personal_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"

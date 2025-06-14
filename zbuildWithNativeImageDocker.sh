@@ -1,0 +1,35 @@
+docker run --env LANG=C --rm -v /Users/alex/Work/BCash/YAM/maxb_codecommit/jinfra/api.bsg/target/api.bsg-1.0-SNAPSHOT-native-image-source-jar:/project:z \ 
+--name build-native-HljGe quay.io/quarkus/ubi-quarkus-native-image:22.2-java17 \
+-J-Dsun.nio.ch.maxUpdateArraySize=100 \
+-J-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true \
+-J-Djava.util.logging.manager=org.jboss.logmanager.LogManager \
+-J-Dlogging.initial-configurator.min-level=500 \
+-J-Dio.netty.leakDetection.level=DISABLED \
+-J-Dio.netty.allocator.maxOrder=3 \
+-J-Dvertx.logger-delegate-factory-class-name=io.quarkus.vertx.core.runtime.VertxLogDelegateFactory \
+-J-Dvertx.disableDnsResolver=true \
+-J-Duser.language=en \
+-J-Duser.country=US \
+-J-Dfile.encoding=UTF-8 \
+--features=io.quarkus.runner.Feature,io.quarkus.runtime.graal.ResourcesFeature,io.quarkus.runtime.graal.DisableLoggingFeature \
+-J--add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED \
+-J--add-opens=java.base/java.text=ALL-UNNAMED \
+-J--add-opens=java.base/java.io=ALL-UNNAMED \
+-J--add-opens=java.base/java.lang.invoke=ALL-UNNAMED \
+-J--add-opens=java.base/java.util=ALL-UNNAMED \
+-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy\$BySpaceAndTime \
+-H:+AllowFoldMethods \
+-J-Djava.awt.headless=true \
+--no-fallback \
+--link-at-build-time \
+-H:+ReportExceptionStackTraces \
+-H:-AddAllCharsets \
+--enable-url-protocols=http \
+-H:-UseServiceLoaderFeature \
+-H:+StackTrace \
+-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED \
+-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED \
+-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED \
+-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk.proxy=ALL-UNNAMED \
+-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk.localization=ALL-UNNAMED \
+api.bsg-1.0-SNAPSHOT-runner -jar api.bsg-1.0-SNAPSHOT-runner.jar

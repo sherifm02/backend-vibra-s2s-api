@@ -1,0 +1,11 @@
+[
+    {
+         "ParameterKey": "HostedZoneIdParam",
+         "ParameterValue": "Z00122341WXMX555JV3P2"
+    },
+    {
+        "ParameterKey": "DomainNameParam",
+        "ParameterValue": "prod.pub-api.viv.sdn.mfgapi.com"
+    }
+    
+ ]

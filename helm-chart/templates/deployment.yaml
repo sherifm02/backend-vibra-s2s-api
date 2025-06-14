@@ -1,0 +1,198 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vibra-s2s-api.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "vibra-s2s-api.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vibra-s2s-api.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 33%
+  template:
+    metadata:
+      annotations:
+        timestamp: {{ now | quote }}
+        ad.datadoghq.com/vibra-s2s-api.logs: '[{"source":"api","service":"vibra-s2s-api"}]'
+      labels:
+        {{- include "vibra-s2s-api.selectorLabels" . | nindent 8 }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "vibra-s2s-api.selectorLabels" . | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- if .Values.memoryRequest }}
+            requests:
+              memory: {{ .Values.memoryRequest | quote }}
+              {{- if .Values.cpuRequest }}
+              cpu: {{ .Values.cpuRequest | quote }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.memoryLimit }}
+            limits:
+              memory: {{ .Values.memoryLimit | quote }}
+              {{- if .Values.cpuLimit }}
+              cpu: {{ .Values.cpuLimit | quote }}
+              {{- end }}
+            {{- end }}
+          env:
+            - name: "QUARKUS_DATASOURCE_USERNAME"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-postgres-secrets"
+                  key: quarkus-datasource-username
+            - name: "QUARKUS_DATASOURCE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-postgres-secrets"
+                  key: quarkus-datasource-password
+            - name: "QUARKUS_DATASOURCE_JDBC_URL"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-postgres-secrets"
+                  key: quarkus-datasource-jdbc-url
+            - name: "MF_OTEL_COLLECTOR_HOST"
+              value: {{ .Values.mf_otel_collector_host }}
+            - name: "MF_SERVICE_NAME"
+              value: {{ .Values.mf_service_name }}
+            - name: "MF_ENVIRONMENT_NAME"
+              value: {{ .Values.mf_environment_name }}
+            - name: "MF_SESSION_REDIS_PROTOCOL"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-redis-secrets"
+                  key: mf-session-redis-protocol
+            - name: "MF_SESSION_REDIS_HOSTS"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-redis-secrets"
+                  key: mf-session-redis-hosts
+            - name: "QUARKUS_REDIS_REDIS_SESSION_TLS_ENABLED"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-redis-secrets"
+                  key: quarkus-redis-redis-session-tls-enabled
+            - name: "MF_SESSION_REDIS_USERNAME"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-redis-secrets"
+                  key: mf-session-redis-username
+            - name: "MF_SESSION_REDIS_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-redis-secrets"
+                  key: mf-session-redis-password
+            - name: "mf.domain.root"
+              value: {{ .Values.mf_domain_root }}
+            - name: "MF_DOMAIN_ROOT"
+              value: {{ .Values.mf_domain_root }}
+            - name: "MF_CONFIG_ENV"
+              value: {{ .Values.mf_config_env }}
+            - name: "QUARKUS_MICROMETER_EXPORT_DATADOG_URI"
+              value: {{ .Values.mf_datadog_url }}
+            {{- if .Values.mf_analytics_settings_real }}
+            - name: "MF_ANALYTICS_SETTINGS_REAL"
+              value: {{ .Values.mf_analytics_settings_real }}
+            {{- end }}
+            {{- if .Values.mf_analytics_settings_demo }}
+            - name: "MF_ANALYTICS_SETTINGS_DEMO"
+              value: {{ .Values.mf_analytics_settings_demo }}
+            {{- end }}
+            - name: "MF_MASTER_PASSWORD_PASS1"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-eks-keys-secrets"
+                  key: mf_master_password_pass1
+            - name: "MF_KAFKA_MAIN_LOGIN"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-kafka"
+                  key: mf-kafka-login
+            - name: "MF_KAFKA_MAIN_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: "mf-kafka"
+                  key: mf-kafka-password
+            - name: "MF_REGISTRATION_TRANSACTION_API"
+              value: "http://mf-be-chart:8080"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: http-alt
+              containerPort: 8081
+              protocol: TCP
+          volumeMounts:
+            - name: secrets-keys
+              mountPath: "/mnt/secrets-keys"
+              readOnly: true
+            - name: secrets-postgres
+              mountPath: "/mnt/secrets-postgres"
+              readOnly: true
+            - name: secrets-redis
+              mountPath: "/mnt/secrets-redis"
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: 8081
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8081
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8081
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
+      volumes:
+        - name: secrets-keys
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "mf-eks-keys-secrets"
+        - name: secrets-postgres
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "mf-eks-postgres-secrets"
+        - name: secrets-redis
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "mf-eks-redis-secrets"
+      serviceAccountName: mf-service-account
