@@ -4,8 +4,7 @@ import io.megafair.jinfra.vibra.shared.gameprovider.player.url.LaunchRequestPara
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
@@ -18,8 +17,7 @@ public interface StartGameGuestAPI extends StartGameAPI {
     String API_PATH = "/cwguestlogin.do";
 
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response guestLogin(@Valid LaunchParameters requestHTTP, @Valid @BeanParam LaunchRequestParams urlRequestParams, @Context HttpServerRequest httpRequest, HttpHeaders httpHeaders);
+    Response guestLogin(@Valid @BeanParam LaunchParameters requestHTTP, @Valid @BeanParam LaunchRequestParams urlRequestParams, @Context HttpServerRequest httpRequest, HttpHeaders httpHeaders);
 }

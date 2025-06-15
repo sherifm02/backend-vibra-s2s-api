@@ -4,8 +4,7 @@ import io.megafair.jinfra.vibra.shared.gameprovider.player.url.LaunchRequestPara
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
@@ -17,8 +16,7 @@ import jakarta.ws.rs.core.Response;
 public interface StartGameAuthAPI extends StartGameAPI {
     String API_PATH = "/cwstartgamev2.do";
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response startGameAuth(@Valid LaunchParameters requestHTTP, @Valid @BeanParam LaunchRequestParams urlRequestParams, @Context HttpServerRequest httpRequest, HttpHeaders httpHeaders);
+    Response startGameAuth(@Valid @BeanParam LaunchParameters requestHTTP, @Valid @BeanParam LaunchRequestParams urlRequestParams, @Context HttpServerRequest httpRequest, HttpHeaders httpHeaders);
 }

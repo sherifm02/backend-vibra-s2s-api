@@ -125,7 +125,7 @@
             </dependency>
             <dependency>
                 <groupId>io.megafair.jinfra.foundation</groupId>
-                <artifactId>mf-fnd-reevo-client</artifactId>
+                <artifactId>mf-fnd-light-game-cache-data-provider</artifactId>
                 <version>${mf.foundation.version}</version>
             </dependency>
         </dependencies>
