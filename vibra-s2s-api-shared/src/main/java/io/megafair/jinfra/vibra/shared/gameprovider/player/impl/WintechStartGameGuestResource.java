@@ -2,6 +2,7 @@ package io.megafair.jinfra.vibra.shared.gameprovider.player.impl;
 
 
 import io.megafair.jinfra.foundation.extclient.base.AssociationServiceDataProvider;
+import io.megafair.jinfra.foundation.game.core.cache.management.LightCompositeGameCacheDataProvider;
 import io.megafair.jinfra.foundation.geoip.LocationService;
 import io.megafair.jinfra.foundation.geoip.validation.GeoValidator;
 import io.megafair.jinfra.foundation.mf.contract.api.AnalyticsPlatformCredentialsProvider;
@@ -13,7 +14,6 @@ import io.megafair.jinfra.foundation.platform.contract.service.PlatformSecretSer
 import io.megafair.jinfra.foundation.platform.contract.service.impl.AdditionalParamsHandler;
 import io.megafair.jinfra.foundation.platform.wintech.contract.common.WintechApiSupportedProtocols;
 import io.megafair.jinfra.foundation.platform.wintech.contract.common.WintechAssociationServiceConsumerContextProvider;
-import io.megafair.jinfra.foundation.tournament.rt.service.cache.LightTournamentCacheDataProvider;
 import io.megafair.jinfra.foundation.utils.encoding.Base64Utils;
 import io.megafair.jinfra.foundation.web.base.domain.DomainConfig;
 import io.megafair.jinfra.foundation.web.session.ExtSystemUser;
@@ -50,7 +50,7 @@ public class WintechStartGameGuestResource extends BaseStartGameGuestResource<La
                                          SessionCookieBuilder sessionCookieBuilder,
                                          DomainConfig domainConfig,
                                          GameURLConfig gameURLConfig,
-                                         LightTournamentCacheDataProvider tournamentCacheDataProvider,
+                                         LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
                                          AdditionalParamsHandler additionalParamsHandler,
                                          AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, WintechAssociationServiceConsumerContextProvider wintechAssociationServiceContextProvider, S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
         super(locationService, platformSecretService, isLocal, geoValidator, associationServiceDataProvider, sessionCookieBuilder,

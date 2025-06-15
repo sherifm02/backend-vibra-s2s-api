@@ -5,6 +5,7 @@ import io.megafair.jinfra.auth.shared.service.AuthParametersExtractor;
 import io.megafair.jinfra.foundation.currencyexchange.base.CurrencySettings;
 import io.megafair.jinfra.foundation.extclient.base.AssociationServiceDataProvider;
 import io.megafair.jinfra.foundation.feature.toggle.common.FeatureToggleService;
+import io.megafair.jinfra.foundation.game.core.cache.management.LightCompositeGameCacheDataProvider;
 import io.megafair.jinfra.foundation.geoip.LocationService;
 import io.megafair.jinfra.foundation.geoip.validation.GeoValidator;
 import io.megafair.jinfra.foundation.mf.contract.api.AnalyticsPlatformCredentialsProvider;
@@ -26,9 +27,8 @@ import io.megafair.jinfra.foundation.platform.vibra.contract.auth.impl.VibraRela
 import io.megafair.jinfra.foundation.platform.vibra.contract.common.BigDecimalFormatter;
 import io.megafair.jinfra.foundation.platform.vibra.contract.common.VibraApiSupportedProtocols;
 import io.megafair.jinfra.foundation.player.transaction.service.UnitConversionService;
-import io.megafair.jinfra.foundation.tournament.rt.service.cache.LightTournamentCacheDataProvider;
 import io.megafair.jinfra.foundation.tutorial.main.service.PlayerTutorialDataService;
-import io.megafair.jinfra.foundation.user.registration.client.UserRegistrationService;
+import io.megafair.jinfra.foundation.user.registration.client.HttpUserRegistrationService;
 import io.megafair.jinfra.foundation.utils.encoding.Base64Utils;
 import io.megafair.jinfra.foundation.utils.logging.MDC;
 import io.megafair.jinfra.foundation.web.base.domain.DomainConfig;
@@ -75,10 +75,10 @@ public class WintechStartGameAuthResource extends BaseStartGameAuthResource<Laun
                                         AssociationServiceDataProvider associationServiceDataProvider,
                                         SessionCookieBuilder sessionCookieBuilder,
                                         PlayerTutorialDataService playerTutorialDataService,
-                                        UserRegistrationService userRegistrationService,
+                                        HttpUserRegistrationService userRegistrationService,
                                         DomainConfig domainConfig,
                                         GameURLConfig gameURLConfig,
-                                        LightTournamentCacheDataProvider tournamentCacheDataProvider,
+                                        LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
                                         AuthParametersExtractor authParametersExtractor,
                                         UnitConversionService unitConversionService,
                                         CurrencySettings currencySettings,
@@ -164,9 +164,9 @@ public class WintechStartGameAuthResource extends BaseStartGameAuthResource<Laun
     }
 
     private RelayInitializeResponse authenticate(StartGameContext<LaunchParametersHolder> startGameContext) {
-        var game = new RelayLaunchGameRequest();
-        game.setToken(startGameContext.getRequest().getPayload().getToken());
-        RelayLaunchGameResponse launch = relayLaunchGameAPIClient.authenticate(buildVibraRequestHeaderInfo(startGameContext), game);
+        var launchGameRequest = new RelayLaunchGameRequest();
+        launchGameRequest.setToken(startGameContext.getRequest().getPayload().getToken());
+        RelayLaunchGameResponse launch = relayLaunchGameAPIClient.launch(buildVibraRequestHeaderInfo(startGameContext), launchGameRequest);
 
         log.info("relay launch response: {}", launch);
         if (launch.getIsInterrupted()) {
@@ -176,7 +176,7 @@ public class WintechStartGameAuthResource extends BaseStartGameAuthResource<Laun
         var initReq = new RelayInitializeRequest();
         initReq.setToken(launch.getToken());
         initReq.setSessionId(launch.getSessionId());
-        RelayInitializeResponse init = relayInitializeGameAPIClient.authenticate(buildVibraRequestHeaderInfo(startGameContext), initReq);
+        RelayInitializeResponse init = relayInitializeGameAPIClient.initialize(buildVibraRequestHeaderInfo(startGameContext), initReq);
         log.info("relay initialize response: {}", init);
         return init;
     }
