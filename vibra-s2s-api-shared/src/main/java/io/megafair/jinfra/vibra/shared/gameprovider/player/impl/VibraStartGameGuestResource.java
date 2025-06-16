@@ -37,22 +37,22 @@ import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
-public class WintechStartGameGuestResource extends BaseStartGameGuestResource<LaunchParametersHolder> implements StartGameGuestAPI {
+public class VibraStartGameGuestResource extends BaseStartGameGuestResource<LaunchParametersHolder> implements StartGameGuestAPI {
 
     private final WintechAssociationServiceConsumerContextProvider wintechAssociationServiceContextProvider;
     private final S2SBackJWTService s2sJwtService;
     private final S2SBackConfiguration s2sConfiguration;
-    public WintechStartGameGuestResource(LocationService locationService,
-                                         PlatformSecretService platformSecretService,
-                                         @ConfigProperty(name = "mf.is_local", defaultValue = "false") Boolean isLocal,
-                                         GeoValidator geoValidator,
-                                         AssociationServiceDataProvider associationServiceDataProvider,
-                                         SessionCookieBuilder sessionCookieBuilder,
-                                         DomainConfig domainConfig,
-                                         GameURLConfig gameURLConfig,
-                                         LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
-                                         AdditionalParamsHandler additionalParamsHandler,
-                                         AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, WintechAssociationServiceConsumerContextProvider wintechAssociationServiceContextProvider, S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
+    public VibraStartGameGuestResource(LocationService locationService,
+                                       PlatformSecretService platformSecretService,
+                                       @ConfigProperty(name = "mf.is_local", defaultValue = "false") Boolean isLocal,
+                                       GeoValidator geoValidator,
+                                       AssociationServiceDataProvider associationServiceDataProvider,
+                                       SessionCookieBuilder sessionCookieBuilder,
+                                       DomainConfig domainConfig,
+                                       GameURLConfig gameURLConfig,
+                                       LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
+                                       AdditionalParamsHandler additionalParamsHandler,
+                                       AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, WintechAssociationServiceConsumerContextProvider wintechAssociationServiceContextProvider, S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
         super(locationService, platformSecretService, isLocal, geoValidator, associationServiceDataProvider, sessionCookieBuilder,
                 domainConfig, gameURLConfig, tournamentCacheDataProvider, new WintechApiSupportedProtocols(), additionalParamsHandler, analyticsPlatformCredentials);
         this.wintechAssociationServiceContextProvider = wintechAssociationServiceContextProvider;

@@ -24,7 +24,6 @@ import io.megafair.jinfra.foundation.platform.vibra.contract.api.response.RelayI
 import io.megafair.jinfra.foundation.platform.vibra.contract.api.response.RelayLaunchGameResponse;
 import io.megafair.jinfra.foundation.platform.vibra.contract.auth.impl.VibraRelayInitializeGameAPIClientImpl;
 import io.megafair.jinfra.foundation.platform.vibra.contract.auth.impl.VibraRelayLaunchGameAPIClientImpl;
-import io.megafair.jinfra.foundation.platform.vibra.contract.common.BigDecimalFormatter;
 import io.megafair.jinfra.foundation.platform.vibra.contract.common.VibraApiSupportedProtocols;
 import io.megafair.jinfra.foundation.player.transaction.service.UnitConversionService;
 import io.megafair.jinfra.foundation.tutorial.main.service.PlayerTutorialDataService;
@@ -48,6 +47,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -58,33 +58,33 @@ import java.util.Optional;
 import static io.megafair.jinfra.foundation.utils.logging.LogPropertyNames.EXT_USER_ID;
 
 @Slf4j
-public class WintechStartGameAuthResource extends BaseStartGameAuthResource<LaunchParametersHolder> implements StartGameAuthAPI {
+public class VibraStartGameAuthResource extends BaseStartGameAuthResource<LaunchParametersHolder> implements StartGameAuthAPI {
 
     private final VibraRelayLaunchGameAPIClientImpl relayLaunchGameAPIClient;
     private final VibraRelayInitializeGameAPIClientImpl relayInitializeGameAPIClient;
     private final S2SBackJWTService s2sJwtService;
     private final S2SBackConfiguration s2sConfiguration;
 
-    public WintechStartGameAuthResource(LocationService locationService,
-                                        PlatformSecretService platformSecretService,
-                                        SessionService sessionService,
-                                        FeatureToggleService featureToggleService,
-                                        PlatformConfigService platformConfigService,
-                                        @ConfigProperty(name = "mf.is_local", defaultValue = "false") Boolean isLocal,
-                                        GeoValidator geoValidator,
-                                        AssociationServiceDataProvider associationServiceDataProvider,
-                                        SessionCookieBuilder sessionCookieBuilder,
-                                        PlayerTutorialDataService playerTutorialDataService,
-                                        HttpUserRegistrationService userRegistrationService,
-                                        DomainConfig domainConfig,
-                                        GameURLConfig gameURLConfig,
-                                        LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
-                                        AuthParametersExtractor authParametersExtractor,
-                                        UnitConversionService unitConversionService,
-                                        CurrencySettings currencySettings,
-                                        AdditionalParamsHandler additionalParamsHandler,
-                                        AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, VibraRelayLaunchGameAPIClientImpl relayLaunchGameAPIClient, VibraRelayInitializeGameAPIClientImpl relayInitializeGameAPIClient,
-                                        S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
+    public VibraStartGameAuthResource(LocationService locationService,
+                                      PlatformSecretService platformSecretService,
+                                      SessionService sessionService,
+                                      FeatureToggleService featureToggleService,
+                                      PlatformConfigService platformConfigService,
+                                      @ConfigProperty(name = "mf.is_local", defaultValue = "false") Boolean isLocal,
+                                      GeoValidator geoValidator,
+                                      AssociationServiceDataProvider associationServiceDataProvider,
+                                      SessionCookieBuilder sessionCookieBuilder,
+                                      PlayerTutorialDataService playerTutorialDataService,
+                                      HttpUserRegistrationService userRegistrationService,
+                                      DomainConfig domainConfig,
+                                      GameURLConfig gameURLConfig,
+                                      LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
+                                      AuthParametersExtractor authParametersExtractor,
+                                      UnitConversionService unitConversionService,
+                                      CurrencySettings currencySettings,
+                                      AdditionalParamsHandler additionalParamsHandler,
+                                      AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, VibraRelayLaunchGameAPIClientImpl relayLaunchGameAPIClient, VibraRelayInitializeGameAPIClientImpl relayInitializeGameAPIClient,
+                                      S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
         super(locationService, platformSecretService, sessionService, featureToggleService, platformConfigService, isLocal, geoValidator, associationServiceDataProvider, sessionCookieBuilder, playerTutorialDataService, userRegistrationService,
                 domainConfig, gameURLConfig, tournamentCacheDataProvider, authParametersExtractor, unitConversionService, new VibraApiSupportedProtocols(), currencySettings, additionalParamsHandler, analyticsPlatformCredentials);
         this.relayLaunchGameAPIClient = relayLaunchGameAPIClient;
@@ -139,7 +139,7 @@ public class WintechStartGameAuthResource extends BaseStartGameAuthResource<Laun
         ExtSystemUser extSystemUser = new ExtSystemUser(
                 userId,
                 userId,
-                BigDecimalFormatter.parseWithCustomFormat(authResp.getBalance(), decimalSeparator, groupingSeparator),
+                BigDecimal.valueOf(Long.parseLong(authResp.getBalance())),
                 authResp.getCurrencyId(),
                 platformId,
                 brandId,
@@ -184,7 +184,6 @@ public class WintechStartGameAuthResource extends BaseStartGameAuthResource<Laun
     private VibraRequestHeaderInfo buildVibraRequestHeaderInfo(StartGameContext<LaunchParametersHolder> startGameContext) {
         VibraRequestHeaderInfo wintechRequestHeaderInfo = new VibraRequestHeaderInfo();
         wintechRequestHeaderInfo.setBrandId(startGameContext.getIntBrandId());
-        wintechRequestHeaderInfo.setHash("temp");
         return wintechRequestHeaderInfo;
     }
 
