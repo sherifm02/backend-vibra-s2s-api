@@ -12,8 +12,7 @@ import io.megafair.jinfra.foundation.mf.contract.api.S2SBackConfiguration;
 import io.megafair.jinfra.foundation.mf.contract.api.S2SBackJWTService;
 import io.megafair.jinfra.foundation.platform.contract.service.PlatformSecretService;
 import io.megafair.jinfra.foundation.platform.contract.service.impl.AdditionalParamsHandler;
-import io.megafair.jinfra.foundation.platform.wintech.contract.common.WintechApiSupportedProtocols;
-import io.megafair.jinfra.foundation.platform.wintech.contract.common.WintechAssociationServiceConsumerContextProvider;
+import io.megafair.jinfra.foundation.platform.vibra.contract.common.VibraApiSupportedProtocols;
 import io.megafair.jinfra.foundation.utils.encoding.Base64Utils;
 import io.megafair.jinfra.foundation.web.base.domain.DomainConfig;
 import io.megafair.jinfra.foundation.web.session.ExtSystemUser;
@@ -39,7 +38,6 @@ import java.util.UUID;
 @Slf4j
 public class VibraStartGameGuestResource extends BaseStartGameGuestResource<LaunchParametersHolder> implements StartGameGuestAPI {
 
-    private final WintechAssociationServiceConsumerContextProvider wintechAssociationServiceContextProvider;
     private final S2SBackJWTService s2sJwtService;
     private final S2SBackConfiguration s2sConfiguration;
     public VibraStartGameGuestResource(LocationService locationService,
@@ -52,10 +50,9 @@ public class VibraStartGameGuestResource extends BaseStartGameGuestResource<Laun
                                        GameURLConfig gameURLConfig,
                                        LightCompositeGameCacheDataProvider tournamentCacheDataProvider,
                                        AdditionalParamsHandler additionalParamsHandler,
-                                       AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, WintechAssociationServiceConsumerContextProvider wintechAssociationServiceContextProvider, S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
+                                       AnalyticsPlatformCredentialsProvider analyticsPlatformCredentials, S2SBackJWTService s2sJwtService, S2SBackConfiguration s2sConfiguration) {
         super(locationService, platformSecretService, isLocal, geoValidator, associationServiceDataProvider, sessionCookieBuilder,
-                domainConfig, gameURLConfig, tournamentCacheDataProvider, new WintechApiSupportedProtocols(), additionalParamsHandler, analyticsPlatformCredentials);
-        this.wintechAssociationServiceContextProvider = wintechAssociationServiceContextProvider;
+                domainConfig, gameURLConfig, tournamentCacheDataProvider, new VibraApiSupportedProtocols(), additionalParamsHandler, analyticsPlatformCredentials);
         this.s2sJwtService = s2sJwtService;
         this.s2sConfiguration = s2sConfiguration;
     }

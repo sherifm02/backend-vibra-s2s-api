@@ -182,9 +182,9 @@ public class VibraStartGameAuthResource extends BaseStartGameAuthResource<Launch
     }
 
     private VibraRequestHeaderInfo buildVibraRequestHeaderInfo(StartGameContext<LaunchParametersHolder> startGameContext) {
-        VibraRequestHeaderInfo wintechRequestHeaderInfo = new VibraRequestHeaderInfo();
-        wintechRequestHeaderInfo.setBrandId(startGameContext.getIntBrandId());
-        return wintechRequestHeaderInfo;
+        VibraRequestHeaderInfo vibraRequestHeaderInfo = new VibraRequestHeaderInfo();
+        vibraRequestHeaderInfo.setBrandId(startGameContext.getIntBrandId());
+        return vibraRequestHeaderInfo;
     }
 
     @Override
