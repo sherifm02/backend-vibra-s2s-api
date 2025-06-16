@@ -135,6 +135,8 @@ spec:
                   key: mf-kafka-password
             - name: "MF_REGISTRATION_TRANSACTION_API"
               value: "http://mf-be-chart:8080"
+            - name: "MF_CONF_CONTRACT_S2S_FRONT_API_URL"
+              value: {{ .Values.mf_conf_contract_s2s_front_api_url }}
           ports:
             - name: http
               containerPort: 8080

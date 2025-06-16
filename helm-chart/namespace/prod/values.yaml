@@ -10,6 +10,7 @@ mf_datadog_url: "http://datadog-proxy.prod.svc.cluster.local:8080"
 mf_analytics_settings_real: "DevToDev_Bingo=1aa0a681-7d1d-0c23-8923-bafa86ea73f2,GameAnalytics_Bingo=b58ed9864d40d66b7c78359c4f82a0d8:c385bf4c5a94f5c79f8234448a97ccf7c8a7c197,DevToDev_Solitaire=d04a014b-1c43-0a30-b8d0-667e5b5b44a2,GameAnalytics_Solitaire=8299c7758887e801bd31abb6d85d1bbf:b2020fac52a8e3ca89be8c2cc66b73a8ea676e88,DevToDev_Slots_black=befff517-17f0-0365-8c7a-e8ed64e23714,DevToDev_GoldFish=9bd19229-1fc2-0072-8474-7d69d4379747"
 mf_analytics_settings_demo: "DevToDev_Bingo=a9b47a19-4389-0a3f-b3b3-5b892b1791c8,GameAnalytics_Bingo=27e399b06d82e9e86d69255145a35fce:db67258c46dd6be3752659588540c43cfd3787fd,DevToDev_Solitaire=ef2ed333-906c-07d8-b7db-65596cda8c8e,GameAnalytics_Solitaire=8177e80cc5e6212816708a871a6b82f3:ffbb8f52b79e7c46698805ba1d628b6e0d42f43c,DevToDev_Slots_black=c47738dd-1ae9-00e3-ba51-31095822d58a,DevToDev_GoldFish=437e96b4-16ec-0863-b414-7ba75b8e9b4c"
 
+mf_conf_contract_s2s_front_api_url: "https://mfstg.com/game-init-api/initData"
 
 service:
   type: ClusterIP
